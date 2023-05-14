@@ -50,10 +50,10 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256);
+    function allowance(
+        address owner,
+        address spender
+    ) external view returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -144,7 +144,10 @@ abstract contract Context {
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -191,7 +194,10 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
         _transferOwnership(newOwner);
     }
 
@@ -243,13 +249,6 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
 
     mapping(address => bool) private whitelist;
 
-    uint64 public guaranteeFee;
-    uint64 public treasuryFee;
-    uint64 public feeDenominator;
-
-    address public guaranteeAddr;
-    address public treasuryAddr;
-
     /**
      * @dev Sets the values for {name} and {symbol}.
      *
@@ -259,17 +258,9 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor(
-        address _guaranteeAddr,
-        address _treasuryAddr
-    ) {
+    constructor() {
         _name = "Magna Token";
         _symbol = "MAGNA";
-        guaranteeFee = 7;
-        treasuryFee = 18;
-        feeDenominator = 1000;
-        guaranteeAddr = _guaranteeAddr;
-        treasuryAddr = _treasuryAddr;
         _mint(_msgSender(), 100_000_000_000_000_000_000_000_000_000_000);
     }
 
@@ -315,12 +306,7 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function balanceOf(address account) public view override returns (uint256) {
         return _balances[account];
     }
 
@@ -332,11 +318,10 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
      * - `to` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address to, uint256 amount)
-        public
-        override
-        returns (bool)
-    {
+    function transfer(
+        address to,
+        uint256 amount
+    ) public override returns (bool) {
         address owner = _msgSender();
         _transfer(owner, to, amount);
         return true;
@@ -345,12 +330,10 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address owner, address spender)
-        public
-        view
-        override 
-        returns (uint256)
-    {
+    function allowance(
+        address owner,
+        address spender
+    ) public view override returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -364,11 +347,10 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount)
-        public
-        override 
-        returns (bool)
-    {
+    function approve(
+        address spender,
+        uint256 amount
+    ) public override returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, amount);
         return true;
@@ -413,11 +395,10 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
      *
      * - `spender` cannot be the zero address.
      */
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-    
-        returns (bool)
-    {
+    function increaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) public returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
@@ -437,11 +418,10 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
      * - `spender` must have allowance for the caller of at least
      * `subtractedValue`.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-    
-        returns (bool)
-    {
+    function decreaseAllowance(
+        address spender,
+        uint256 subtractedValue
+    ) public returns (bool) {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
         require(
@@ -469,19 +449,21 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
      * - `to` cannot be the zero address.
      * - `from` must have a balance of at least `amount`.
      */
-    function _transfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal {
+    function _transfer(address from, address to, uint256 amount) internal {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
 
         if (isContract(from)) {
-            require(whitelist[from] == true, "ERC20: transfer from the unregistered contract");
+            require(
+                whitelist[from] == true,
+                "ERC20: transfer from the unregistered contract"
+            );
         }
         if (isContract(to)) {
-            require(whitelist[to] == true, "ERC20: transfer from the unregistered contract");
+            require(
+                whitelist[to] == true,
+                "ERC20: transfer from the unregistered contract"
+            );
         }
 
         _beforeTokenTransfer(from, to, amount);
@@ -492,22 +474,14 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
             "ERC20: transfer amount exceeds balance"
         );
 
-        uint256 feeAmount = amount * (guaranteeFee + treasuryFee) / feeDenominator;
-        uint256 guaranteeFeeAmount = amount * guaranteeFee / feeDenominator;
-
         unchecked {
             _balances[from] = fromBalance - amount;
             // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
             // decrementing then incrementing.
-            amount = amount - feeAmount;
             _balances[to] += amount;
-            _balances[guaranteeAddr] += guaranteeFeeAmount;
-            _balances[treasuryAddr] += feeAmount - guaranteeFeeAmount;
         }
 
         emit Transfer(from, to, amount);
-        emit Transfer(from, guaranteeAddr, guaranteeFeeAmount);
-        emit Transfer(from, treasuryAddr, feeAmount - guaranteeFeeAmount);
 
         _afterTokenTransfer(from, to, amount);
     }
@@ -578,11 +552,7 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      */
-    function _approve(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal {
+    function _approve(address owner, address spender, uint256 amount) internal {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -655,26 +625,12 @@ contract MagnaToken is Context, IERC20, IERC20Metadata, Ownable {
         uint256 amount
     ) internal {}
 
-    function isContract(address _addr) private view returns (bool){
+    function isContract(address _addr) private view returns (bool) {
         uint32 size;
         assembly {
             size := extcodesize(_addr)
         }
         return (size > 0);
-    }
-
-    function setGuaranteeAddr(address _guaranteeAddr) public onlyOwner {
-        guaranteeAddr = _guaranteeAddr;
-    }
-
-    function setTreasuryAddr(address _treasuryAddr) public onlyOwner {
-        treasuryAddr = _treasuryAddr;
-    }
-
-    function setFee(uint64 _guaranteeFee, uint64 _treasuryFee, uint64 _feeDenominator) public onlyOwner {
-        guaranteeFee = _guaranteeFee;
-        treasuryFee = _treasuryFee;
-        feeDenominator = _feeDenominator;
     }
 
     function addWhitelist(address _contract) public onlyOwner {
